@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Secret Search Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Optional favicon using onion logo -->
+  <link rel="icon" href="Onion.png" type="image/png">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #0d0d0d;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .search-container {
+      background: rgba(20, 20, 20, 0.95);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(187, 134, 252, 0.4);
+      text-align: center;
+      width: 90%;
+      max-width: 450px;
+    }
+
+    .onion-logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px rgba(187, 134, 252, 0.8);
+      background-color: #121212;
+      object-fit: cover;
+    }
+
+    h1 {
+      color: #bb86fc;
+      margin-bottom: 30px;
+      font-size: 2.3rem;
+      text-shadow: 0 0 8px #8e44ad;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      background: #1e1e1e;
+      border: 1px solid #bb86fc;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #03dac6;
+    }
+
+    button {
+      padding: 12px 25px;
+      background: #03dac6;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #00bfa6;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #121212;
+      color: #03dac6;
+      border: 1px solid #03dac6;
+      padding: 12px 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #03dac6;
+      display: none;
+      animation: fadeInOut 4s ease forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; bottom: 20px; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; bottom: 10px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-container">
+    <img class="onion-logo" src="onion.png" alt="Onion Logo">
+    <h1>Secret Search Engine</h1>
+    <input type="text" id="searchBox" placeholder="Enter your query..." autocomplete="off">
+    <button onclick="submitSearch()">Search</button>
+  </div>
+
+  <div class="toast" id="toast">Search submitted!</div>
+
+  <script>
+    const input = document.getElementById('searchBox');
+
+    // Allow Enter key to trigger search
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        submitSearch();
+      }
+    });
+
+    // Clear input when page loads
+    window.onload = () => {
+      input.value = '';
+    };
+
+    function submitSearch() {
+      const query = input.value.trim();
+      if (!query) {
+        showToast("Please enter a query.", true);
+        return;
+      }
+
+      const data = {
+        search: query,
+        timestamp: new Date().toISOString()
+      };
+
+      const WEBHOOK_URL = 'https://eospd6qzk069gya.m.pipedream.net'; // your Pipedream webhook
+
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        input.value = '';
+        showToast("Search submitted!");
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showToast("Failed to send!", true);
+      });
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.borderColor = isError ? '#ff4d4f' : '#03dac6';
+      toast.style.color = isError ? '#ff4d4f' : '#03dac6';
+      toast.style.boxShadow = isError ? '0 0 10px #ff4d4f' : '0 0 10px #03dac6';
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
